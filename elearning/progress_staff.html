@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Progress</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 90%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        table {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        th, td {
+            color: white;
+            text-align: center;
+        }
+        .progress-bar {
+            background-color: #ff6b6b;
+        }
+    </style>
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100">
+
+    <div class="container text-white">
+        <h2 class="text-center mb-4">Student Progress</h2>
+        <table class="table table-bordered text-white">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Institute Type</th>
+                    <th>Course</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Progress</th>
+                </tr>
+            </thead>
+            <tbody id="enrollmentTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let enrollmentData = JSON.parse(localStorage.getItem("enrollmentData")) || [];
+            let progressData = JSON.parse(localStorage.getItem("progress_staff")) || [];
+            let tableBody = document.getElementById("enrollmentTable");
+
+            enrollmentData.forEach(student => {
+                let progressEntry = progressData.find(p => p.email === student.email);
+                let progress = progressEntry ? progressEntry.progress : 0;
+                let progressBar = `<div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: ${progress}%">${progress}%</div>
+                </div>`;
+
+                let row = `<tr>
+                    <td>${student.name}</td>
+                    <td>${student.type}</td>
+                    <td>${student.extraData}</td>
+                    <td>${student.email}</td>
+                    <td>${student.phone}</td>
+                    <td>${progressBar}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        });
+    </script>
+
+</body>
+</html>

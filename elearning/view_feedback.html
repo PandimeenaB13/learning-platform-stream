@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff - View Feedback</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 700px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .feedback-card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100">
+
+    <div class="container text-white">
+        <h2 class="text-center mb-4">📋 Student Feedback</h2>
+        <div id="feedbackList"></div>
+    </div>
+
+    <script>
+        function loadFeedback() {
+            let feedbackData = JSON.parse(localStorage.getItem("feedback")) || [];
+            let feedbackList = document.getElementById("feedbackList");
+
+            if (feedbackData.length === 0) {
+                feedbackList.innerHTML = "<p class='text-center'>No feedback available.</p>";
+                return;
+            }
+
+            feedbackList.innerHTML = "";
+            feedbackData.forEach((feedback) => {
+                let feedbackCard = `
+                    <div class="feedback-card">
+                        <strong>${feedback.name}</strong> (${feedback.email}) <br>
+                        <small>${feedback.timestamp}</small>
+                        <p>${feedback.message}</p>
+                    </div>
+                `;
+                feedbackList.innerHTML += feedbackCard;
+            });
+        }
+
+        window.onload = loadFeedback;
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/smtp.js"></script>
+    <style>
+        body {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .progress-bar {
+            background-color: #ff6b6b;
+        }
+        .btn-success {
+            background-color: #28a745;
+            border: none;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+    </style>
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100">
+
+    <div class="container text-white">
+        <h2 class="text-center">Manage Users</h2>
+        <table class="table table-bordered text-white">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Institute Type</th>
+                    <th>Course</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Progress</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="userTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let enrollmentData = JSON.parse(localStorage.getItem("enrollmentData")) || [];
+            let progressData = JSON.parse(localStorage.getItem("progress_staff")) || [];
+            let tableBody = document.getElementById("userTable");
+
+            enrollmentData.forEach((student, index) => {
+                let progressEntry = progressData.find(p => p.email === student.email);
+                let progress = progressEntry ? progressEntry.progress : 0;
+                let progressBar = `<div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: ${progress}%">${progress}%</div>
+                </div>`;
+
+                let certificateButton = progress === 100 
+                    ? `<button class="btn btn-success" onclick="sendCertificate('${student.email}', '${student.name}', '${student.extraData}')">Generate Certificate</button>` 
+                    : "In Progress";
+
+                let row = `<tr>
+                    <td>${student.name}</td>
+                    <td>${student.type}</td>
+                    <td>${student.extraData}</td>
+                    <td>${student.email}</td>
+                    <td>${student.phone}</td>
+                    <td>${progressBar}</td>
+                    <td>
+                        ${certificateButton}
+                        <button class="btn btn-danger mt-2" onclick="removeUser(${index})">Delete</button>
+                    </td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        });
+
+        function removeUser(index) {
+            let enrollmentData = JSON.parse(localStorage.getItem("enrollmentData")) || [];
+            enrollmentData.splice(index, 1);
+            localStorage.setItem("enrollmentData", JSON.stringify(enrollmentData));
+            location.reload();
+        }
+
+        function sendCertificate(email, name, course) {
+            alert(`Sending certificate for ${name}...`);
+            let staffEmail = "staff@example.com";
+            Email.send({
+                SecureToken: "your-secure-token",
+                To: staffEmail,
+                From: "your-email@example.com",
+                Subject: "Course Completion Certificate",
+                Body: `${name} has completed the course: ${course}. Certificate has been generated.`
+            }).then(message => alert("Certificate Sent to Staff!"));
+        }
+    </script>
+
+</body>
+</html>

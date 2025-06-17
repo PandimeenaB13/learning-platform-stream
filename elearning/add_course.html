@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add & View Courses</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease-in-out;
+            border-radius: 15px;
+        }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .btn-custom {
+            background: linear-gradient(45deg, #ff758c, #ff7eb3);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            padding: 12px;
+            width: 100%;
+            transition: all 0.3s ease-in-out;
+        }
+        .btn-custom:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+        .course-list {
+            margin-top: 20px;
+        }
+        .course-item {
+            background: white;
+            color: black;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="mb-4">📚 Manage Courses</h1>
+
+        <!-- Add New Course Form -->
+        <div class="card p-4 mb-4">
+            <h4>Add New Course</h4>
+            <input type="text" id="courseTitle" class="form-control mb-2" placeholder="Course Title">
+            <input type="text" id="courseLink" class="form-control mb-2" placeholder="YouTube Video Link">
+            <input type="file" id="coursePDF" class="form-control mb-2" accept="application/pdf">
+            <button class="btn btn-custom" onclick="addCourse()">Add Course</button>
+        </div>
+
+        <!-- Existing Courses -->
+        <h3>Existing Courses</h3>
+        <div id="courseList" class="course-list"></div>
+    </div>
+
+    <script>
+        // Load courses from local storage
+        function loadCourses() {
+            let courses = JSON.parse(localStorage.getItem("courses")) || [];
+            let courseList = document.getElementById("courseList");
+            courseList.innerHTML = "";
+
+            courses.forEach((course, index) => {
+                let pdfDownloadLink = course.pdf ? `<br><a href="${course.pdf}" download="CourseNote.pdf" class="btn btn-success btn-sm mt-2">Download PDF</a>` : "";
+                courseList.innerHTML += `
+                    <div class="course-item">
+                        <strong>${course.title}</strong> <br>
+                        <a href="${course.link}" target="_blank">${course.link}</a>
+                        ${pdfDownloadLink}
+                        <br>
+                        <button class="btn btn-danger btn-sm mt-2" onclick="deleteCourse(${index})">Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        // Convert file to Base64
+        function getBase64(file, callback) {
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => callback(reader.result);
+            reader.onerror = error => console.log("Error: ", error);
+        }
+
+        // Add a new course
+        function addCourse() {
+            let title = document.getElementById("courseTitle").value;
+            let link = document.getElementById("courseLink").value;
+            let pdfFile = document.getElementById("coursePDF").files[0];
+
+            if (title === "" || link === "") {
+                alert("Please fill in all fields!");
+                return;
+            }
+
+            let courses = JSON.parse(localStorage.getItem("courses")) || [];
+
+            if (pdfFile) {
+                getBase64(pdfFile, (pdfBase64) => {
+                    courses.push({ title, link, pdf: pdfBase64 });
+                    localStorage.setItem("courses", JSON.stringify(courses));
+                    resetForm();
+                    loadCourses();
+                });
+            } else {
+                courses.push({ title, link, pdf: null });
+                localStorage.setItem("courses", JSON.stringify(courses));
+                resetForm();
+                loadCourses();
+            }
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById("courseTitle").value = "";
+            document.getElementById("courseLink").value = "";
+            document.getElementById("coursePDF").value = "";
+        }
+
+        // Delete a course
+        function deleteCourse(index) {
+            let courses = JSON.parse(localStorage.getItem("courses")) || [];
+            courses.splice(index, 1);
+            localStorage.setItem("courses", JSON.stringify(courses));
+            loadCourses();
+        }
+
+        // Load courses on page load
+        window.onload = loadCourses;
+    </script>
+
+</body>
+</html>
